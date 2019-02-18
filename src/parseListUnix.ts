@@ -32,7 +32,7 @@ import { FileInfo, FileType } from "./FileInfo"
  */
 const RE_LINE = new RegExp(
     "([bcdelfmpSs-])" // file type
-    +"(((r|-)(w|-)([xsStTL-]))((r|-)(w|-)([xsStTL-]))((r|-)(w|-)([xsStTL-])))\\+?" // permissions
+    + "(((r|-)(w|-)([xsStTL-]))((r|-)(w|-)([xsStTL-]))((r|-)(w|-)([xsStTL-])))\\+?" // permissions
 
     + "\\s*"                                        // separator TODO why allow it to be omitted??
 
@@ -54,11 +54,11 @@ const RE_LINE = new RegExp(
         *   N.B. use non-space for MMM to allow for languages such as German which use
         *   diacritics (e.g. umlaut) in some abbreviations.
     */
-    + "("+
-        "(?:\\d+[-/]\\d+[-/]\\d+)" + // yyyy-mm-dd
-        "|(?:\\S{3}\\s+\\d{1,2})" +  // MMM [d]d
-        "|(?:\\d{1,2}\\s+\\S{3})" + // [d]d MMM
-        ")"
+    + "(" +
+    "(?:\\d+[-/]\\d+[-/]\\d+)" + // yyyy-mm-dd
+    "|(?:\\S{3}\\s+\\d{1,2})" +  // MMM [d]d
+    "|(?:\\d{1,2}\\s+\\S{3})" + // [d]d MMM
+    ")"
 
     + "\\s+" // separator
 
@@ -80,8 +80,9 @@ export function testLine(line: string): boolean {
 export function parseLine(line: string): FileInfo | undefined {
     const groups = line.match(RE_LINE);
     if (groups) {
+        // Only trim newLine/tabs: name may start or end with spaces (don't use trimEnd since it's node 10+)
+        const name = groups[21].replace(/[\t\n\r]*$/, '');
         // Ignore parent directory links
-        const name = groups[21].trim();
         if (name === "." || name === "..") {
             return undefined;
         }
